@@ -10,59 +10,60 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        // Updated to link to the Plus Jakarta Sans variable from layout.tsx
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
       },
       colors: {
-        border:     "var(--border)",
-        input:      "var(--input)",
-        ring:       "var(--ring)",
+        border: "var(--border)",
+        input: "var(--input)",
+        ring: "var(--ring)",
         background: "var(--background)",
         foreground: "var(--foreground)",
         primary: {
-          DEFAULT:    "var(--primary)",
+          DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",
         },
         secondary: {
-          DEFAULT:    "var(--secondary)",
+          DEFAULT: "var(--secondary)",
           foreground: "var(--secondary-foreground)",
         },
         destructive: {
-          DEFAULT:    "var(--destructive)",
+          DEFAULT: "var(--destructive)",
           foreground: "var(--destructive-foreground)",
         },
         muted: {
-          DEFAULT:    "var(--muted)",
+          DEFAULT: "var(--muted)",
           foreground: "var(--muted-foreground)",
         },
         accent: {
-          DEFAULT:    "var(--accent)",
+          DEFAULT: "var(--accent)",
           foreground: "var(--accent-foreground)",
         },
         popover: {
-          DEFAULT:    "var(--popover)",
+          DEFAULT: "var(--popover)",
           foreground: "var(--popover-foreground)",
         },
         card: {
-          DEFAULT:    "var(--card)",
+          DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
         },
         sidebar: {
-          DEFAULT:    "var(--sidebar)",
+          DEFAULT: "var(--sidebar)",
           foreground: "var(--sidebar-foreground)",
-          border:     "var(--sidebar-border)",
+          border: "var(--sidebar-border)",
         },
         status: {
-          paid:    "var(--status-paid)",
+          paid: "var(--status-paid)",
           pending: "var(--status-pending)",
           overdue: "var(--status-overdue)",
-          draft:   "var(--status-draft)",
+          draft: "var(--status-draft)",
         },
       },
       borderRadius: {
-        lg:  "var(--radius)",
-        md:  "calc(var(--radius) - 2px)",
-        sm:  "calc(var(--radius) - 4px)",
-        xl:  "calc(var(--radius) + 4px)",
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+        xl: "calc(var(--radius) + 4px)",
         "2xl": "calc(var(--radius) + 8px)",
       },
       boxShadow: {

@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                   String           @id @default(cuid())
+  email                String           @unique
+  passwordHash         String
+  emailVerified        Boolean          @default(false)
+  verificationToken    String?
+  verificationExpires  DateTime?
+  resetPasswordToken   String?
+  resetPasswordExpires DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  businessProfile      BusinessProfile?
+  clients              Client[]
+  invoices             Invoice[]
+
+  @@map("users")
+}
+
+model BusinessProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Business Info
+  name           String?
+  email          String?
+  phone          String?
+  website        String?
+
+  // Address
+  address        String?
+  city           String?
+  country        String?
+
+  // Logo
+  logoUrl        String?
+
+  // Invoice Defaults
+  currency       String   @default("USD")
+  invoicePrefix  String   @default("INV")
+  paymentTerms   Int      @default(30) // days
+  defaultNotes   String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("business_profiles")
+}
+
+
+model Client {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  name      String
+  email     String?
+  phone     String?
+  address   String?
+  city      String?
+  country   String?
+  taxId     String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  invoices  Invoice[]
+  
+  @@map("clients")
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+model Invoice {
+  id             String        @id @default(cuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId       String
+  client         Client        @relation(fields: [clientId], references: [id])
+
+  // Invoice details
+  invoiceNumber  String
+  status         InvoiceStatus @default(DRAFT)
+  issueDate      DateTime      @default(now())
+  dueDate        DateTime
+
+  // Amounts
+  subtotal       Float         @default(0)
+  taxRate        Float         @default(0)
+  taxAmount      Float         @default(0)
+  total          Float         @default(0)
+
+  // Extras
+  notes          String?
+  currency       String        @default("USD")
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  items          InvoiceItem[]
+
+  @@unique([userId, invoiceNumber])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  description String
+  quantity    Float   @default(1)
+  rate        Float   @default(0)
+  amount      Float   @default(0)
+
+  @@map("invoice_items")
+}
+

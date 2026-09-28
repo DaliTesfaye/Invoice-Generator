@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   FileText,
@@ -9,6 +9,7 @@ import {
   Settings,
   PlusCircle,
   Zap,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,9 +27,22 @@ const bottomItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <aside className="hidden md:flex flex-col w-[240px] min-h-screen border-r border-sidebar-border bg-sidebar shrink-0">
@@ -90,6 +104,13 @@ export function AppSidebar() {
             {label}
           </Link>
         ))}
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2.5 px-3 py-2 w-full rounded-md text-sm font-medium transition-colors text-muted-foreground hover:bg-muted hover:text-foreground text-left"
+        >
+          <LogOut className="w-4 h-4 shrink-0" />
+          Log out
+        </button>
       </div>
     </aside>
   );

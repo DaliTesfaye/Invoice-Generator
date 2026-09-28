@@ -11,51 +11,70 @@
 @layer base {
   :root {
     /* InvoiceKit Design Tokens */
-    --background:         #F8FAFC;
-    --foreground:         #0F172A;
+    --background: #F8FAFC;
+    --foreground: #0F172A;
 
-    --card:               #FFFFFF;
-    --card-foreground:    #0F172A;
+    --card: #FFFFFF;
+    --card-foreground: #0F172A;
 
-    --popover:            #FFFFFF;
+    --popover: #FFFFFF;
     --popover-foreground: #0F172A;
 
-    --primary:            #2563EB;
+    --primary: #2563EB;
     --primary-foreground: #FFFFFF;
 
-    --secondary:          #F1F5F9;
+    --secondary: #F1F5F9;
     --secondary-foreground: #0F172A;
 
-    --muted:              #F1F5F9;
-    --muted-foreground:   #475569;
+    --muted: #F1F5F9;
+    --muted-foreground: #475569;
 
-    --accent:             #EFF6FF;
-    --accent-foreground:  #1D4ED8;
+    --accent: #EFF6FF;
+    --accent-foreground: #1D4ED8;
 
-    --destructive:        #EF4444;
+    --destructive: #EF4444;
     --destructive-foreground: #FFFFFF;
 
-    --border:             #E2E8F0;
-    --input:              #E2E8F0;
-    --ring:               #2563EB;
-    --radius:             0.5rem;
+    --border: #E2E8F0;
+    --input: #E2E8F0;
+    --ring: transparent;
+    --radius: 0.5rem;
 
     /* Status Colors */
-    --status-paid:        #16A34A;
-    --status-pending:     #D97706;
-    --status-overdue:     #DC2626;
-    --status-draft:       #64748B;
+    --status-paid: #16A34A;
+    --status-pending: #D97706;
+    --status-overdue: #DC2626;
+    --status-draft: #64748B;
 
     /* Sidebar */
-    --sidebar:            #FFFFFF;
+    --sidebar: #FFFFFF;
     --sidebar-foreground: #0F172A;
-    --sidebar-border:     #E2E8F0;
-    --sidebar-width:      240px;
+    --sidebar-border: #E2E8F0;
+    --sidebar-width: 240px;
   }
 
   * {
     @apply border-border;
-    outline-color: var(--ring);
+    outline: none;
+  }
+
+  /* Completely strip default browser blue outlines on inputs, selects, and textareas */
+  input,
+  select,
+  textarea,
+  button {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
   }
 
   body {
