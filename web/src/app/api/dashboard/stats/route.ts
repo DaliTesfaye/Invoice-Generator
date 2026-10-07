@@ -8,13 +8,17 @@ export async function GET(req: NextRequest) {
   try {
     const backendRes = await fetch(`${BACKEND_URL}/api/dashboard/stats`, {
       method: "GET",
+      cache: "no-store",
       headers: {
         cookie: req.headers.get("cookie") || "",
       },
     });
 
     const data = await backendRes.json();
-    return NextResponse.json(data, { status: backendRes.status });
+    return NextResponse.json(data, {
+      status: backendRes.status,
+      headers: { "Cache-Control": "no-store, max-age=0" },
+    });
   } catch (error) {
     console.error("[/api/dashboard/stats GET] Error:", error);
     return NextResponse.json(

@@ -4,11 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "tsx --test src/**/*.test.ts",
     "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "tsx --test src/**/*.test.ts",
     "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "backup:db": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/backup-db.ps1"
   },
   "keywords": [],
   "author": "",

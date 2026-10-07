@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { env } from "../../config/env";
 import crypto from "crypto";
 import prisma from "../../config/db";
+import { sendPasswordResetEmail } from "../../lib/email";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -116,15 +118,15 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     // Create JWT
     const token = jwt.sign(
       { userId: user.id },
-      process.env.JWT_SECRET || "default_secret",
+      env.jwtSecret,
       { expiresIn: "7d" }
     );
 
     // Set JWT as HTTP-only cookie
     res.cookie("jwt", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      secure: env.isProduction,
+      sameSite: env.isProduction ? "strict" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -146,7 +148,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 export const logout = async (req: Request, res: Response): Promise<void> => {
   res.clearCookie("jwt", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.isProduction,
     sameSite: "strict",
   });
 
@@ -209,12 +211,12 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
       },
     });
 
-    console.log(`[DEV ONLY] Password reset link: /api/auth/reset-password?token=${resetPasswordToken}`);
+    await sendPasswordResetEmail(user.email, resetPasswordToken);
 
     res.status(200).json({
       success: true,
       message: "If that email is in our system, a reset link has been sent.",
-      resetToken: resetPasswordToken, // Returning for testing purposes only
+      ...(env.isProduction ? {} : { resetToken: resetPasswordToken }),
     });
   } catch (error) {
     console.error("Forgot password error:", error);

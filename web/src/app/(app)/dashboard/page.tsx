@@ -21,6 +21,7 @@ type DashboardStats = {
   pendingAmount: number;
   overdueAmount: number;
   clientsCount: number;
+  currency: string;
 };
 
 type RecentInvoice = {
@@ -41,11 +42,11 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const res = await fetch("/api/dashboard/stats");
+        const res = await fetch("/api/dashboard/stats", { cache: "no-store" });
         const data = await res.json();
         if (data.success) {
           setStats(data.stats);
-          setRecentInvoices(data.recentInvoices);
+          setRecentInvoices(data.recentInvoices || []);
         }
       } catch (err) {
         console.error("Dashboard fetch error:", err);
@@ -80,7 +81,10 @@ export default function DashboardPage() {
   }
 
   // Welcome / Empty State
-  if (stats?.totalInvoicesCount === 0 && stats?.clientsCount === 0) {
+  const hasDashboardData =
+    (stats?.totalInvoicesCount ?? 0) > 0 || (stats?.clientsCount ?? 0) > 0;
+
+  if (!hasDashboardData) {
     return (
       <div className="max-w-4xl mx-auto mt-8">
         <div className="bg-card border rounded-2xl p-8 sm:p-12 text-center shadow-sm">
@@ -146,7 +150,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="text-2xl font-bold text-foreground">
-            {formatCurrency(stats?.totalRevenue || 0)}
+            {formatCurrency(stats?.totalRevenue || 0, stats?.currency)}
           </div>
           <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
             From {stats?.totalInvoicesCount} invoices
@@ -162,7 +166,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="text-2xl font-bold text-foreground">
-            {formatCurrency(stats?.pendingAmount || 0)}
+            {formatCurrency(stats?.pendingAmount || 0, stats?.currency)}
           </div>
           <div className="text-xs text-muted-foreground mt-2">Awaiting payment</div>
         </div>
@@ -176,7 +180,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="text-2xl font-bold text-foreground">
-            {formatCurrency(stats?.overdueAmount || 0)}
+            {formatCurrency(stats?.overdueAmount || 0, stats?.currency)}
           </div>
           <div className="text-xs text-muted-foreground mt-2">Needs immediate action</div>
         </div>

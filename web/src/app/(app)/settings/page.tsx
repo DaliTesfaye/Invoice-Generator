@@ -24,6 +24,7 @@ import {
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errors";
 import Image from "next/image";
+import { CURRENCY_OPTIONS, DEFAULT_CURRENCY } from "@/lib/currencies";
 
 export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +41,7 @@ export default function SettingsPage() {
     city: "",
     country: "",
     logoUrl: "",
-    currency: "USD",
+    currency: DEFAULT_CURRENCY,
     invoicePrefix: "INV",
     paymentTerms: "30",
     defaultNotes: "",
@@ -49,7 +50,7 @@ export default function SettingsPage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch("/api/profile");
+        const res = await fetch("/api/profile", { cache: "no-store" });
         const data = await res.json();
         if (res.ok && data.profile) {
           setFormData((prev) => ({
@@ -399,14 +400,21 @@ export default function SettingsPage() {
                 </Label>
                 <div className="relative">
                   <Coins className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input
+                  <select
                     id="currency"
                     name="currency"
-                    value={formData.currency || ""}
-                    onChange={handleChange}
-                    placeholder="USD"
-                    className="pl-10 h-11 rounded-xl bg-white border-slate-300 text-slate-900 uppercase placeholder:text-slate-400 focus:border-blue-600 focus:ring-blue-600"
-                  />
+                    value={formData.currency || DEFAULT_CURRENCY}
+                    onChange={(event) =>
+                      setFormData({ ...formData, currency: event.target.value })
+                    }
+                    className="pl-10 h-11 w-full rounded-xl bg-white border border-slate-300 text-slate-900 focus:border-blue-600 focus:ring-blue-600"
+                  >
+                    {CURRENCY_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

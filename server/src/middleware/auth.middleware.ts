@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { env } from "../config/env";
 
 // Extend Express Request to hold the authenticated user's ID
 declare global {
@@ -21,7 +22,7 @@ export const protect = (req: Request, res: Response, next: NextFunction): void =
       return;
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "default_secret") as { userId: string };
+    const decoded = jwt.verify(token, env.jwtSecret) as { userId: string };
 
     req.user = {
       id: decoded.userId,

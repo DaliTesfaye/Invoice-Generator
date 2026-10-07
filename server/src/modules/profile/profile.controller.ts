@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../../config/db";
+import { isSupportedCurrency } from "../../config/currencies";
 
 export const getProfile = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -51,6 +52,12 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       defaultNotes,
     } = req.body;
 
+    const normalizedCurrency = currency || "USD";
+    if (!isSupportedCurrency(normalizedCurrency)) {
+      res.status(400).json({ success: false, message: "Unsupported currency" });
+      return;
+    }
+
     const profile = await prisma.businessProfile.upsert({
       where: { userId },
       update: {
@@ -62,7 +69,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
         city,
         country,
         logoUrl,
-        currency,
+        currency: normalizedCurrency,
         invoicePrefix,
         paymentTerms: paymentTerms ? parseInt(paymentTerms, 10) : undefined,
         defaultNotes,
@@ -77,7 +84,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
         city,
         country,
         logoUrl,
-        currency,
+        currency: normalizedCurrency,
         invoicePrefix,
         paymentTerms: paymentTerms ? parseInt(paymentTerms, 10) : undefined,
         defaultNotes,

@@ -24,6 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errors";
+import { CURRENCY_OPTIONS, DEFAULT_CURRENCY } from "@/lib/currencies";
 
 import { InvoicePreview } from "@/components/invoice/invoice-preview";
 
@@ -79,7 +80,7 @@ export default function EditInvoicePage() {
   const [dueDate, setDueDate] = useState("");
   const [taxRate, setTaxRate] = useState("0");
   const [notes, setNotes] = useState("");
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
 
   const [items, setItems] = useState<LineItem[]>([
     { description: "", quantity: "1", rate: "0" },
@@ -91,7 +92,7 @@ export default function EditInvoicePage() {
         const [clientsRes, invoiceRes, profileRes] = await Promise.all([
           fetch("/api/clients"),
           fetch(`/api/invoices/${invoiceId}`),
-          fetch("/api/profile"),
+          fetch("/api/profile", { cache: "no-store" }),
         ]);
         const clientsData = await clientsRes.json();
         const invoiceData = await invoiceRes.json();
@@ -386,12 +387,18 @@ export default function EditInvoicePage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="currency">Currency Code</Label>
-                  <input
+                  <select
                     id="currency"
                     className={`${formControlStyles} h-10 uppercase font-mono`}
                     value={currency}
-                    onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-                  />
+                    onChange={(e) => setCurrency(e.target.value)}
+                  >
+                    {CURRENCY_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="space-y-2">

@@ -1,7 +1,7 @@
-import puppeteer from "puppeteer";
 import prisma from "../config/db";
 
 export const generateInvoicePdf = async (invoiceId: string, userId: string): Promise<Buffer> => {
+  const { default: puppeteer } = await import("puppeteer");
   const invoice = await prisma.invoice.findFirst({
     where: { id: invoiceId, userId },
     include: {
@@ -19,7 +19,16 @@ export const generateInvoicePdf = async (invoiceId: string, userId: string): Pro
     throw new Error("Invoice not found");
   }
 
-  const business = invoice.user.businessProfile;
+  const business = invoice.user.businessProfile ?? {
+    name: null,
+    email: null,
+    phone: null,
+    website: null,
+    address: null,
+    city: null,
+    country: null,
+    logoUrl: null,
+  };
   const client = invoice.client;
 
   const fmtCurrency = (amount: number) =>
@@ -197,6 +206,7 @@ export const generateInvoicePdf = async (invoiceId: string, userId: string): Pro
 
   const browser = await puppeteer.launch({
     headless: true,
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 

@@ -1,8 +1,13 @@
 import { Request, Response } from "express";
 import { InvoiceStatus } from "@prisma/client";
 import prisma from "../../config/db";
+import { isSupportedCurrency } from "../../config/currencies";
 import { generateInvoicePdf } from "../../utils/pdf";
-import { calculateInvoiceItems, calculateInvoiceTotals } from "./invoice.validation";
+import {
+  calculateInvoiceItems,
+  calculateInvoiceTotals,
+  type CalculatedInvoiceItem,
+} from "./invoice.validation";
 
 // GET /api/invoices — list all invoices for the logged-in user
 export const getInvoices = async (req: Request, res: Response): Promise<void> => {
@@ -107,6 +112,12 @@ export const createInvoice = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
+    const normalizedCurrency = currency || "USD";
+    if (!isSupportedCurrency(normalizedCurrency)) {
+      res.status(400).json({ success: false, message: "Unsupported currency" });
+      return;
+    }
+
     const client = await prisma.client.findFirst({ where: { id: clientId, userId } });
     if (!client) {
       res.status(400).json({ success: false, message: "Selected client was not found" });
@@ -133,7 +144,7 @@ export const createInvoice = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    let lineItems;
+    let lineItems: CalculatedInvoiceItem[] | undefined;
     let totals;
     try {
       lineItems = calculateInvoiceItems(items);
@@ -156,7 +167,7 @@ export const createInvoice = async (req: Request, res: Response): Promise<void> 
         dueDate: parsedDueDate,
         ...totals,
         notes: notes || null,
-        currency: currency || "USD",
+        currency: normalizedCurrency,
         items: {
           create: lineItems,
         },
@@ -206,6 +217,12 @@ export const updateInvoice = async (req: Request, res: Response): Promise<void> 
       items,
     } = req.body;
 
+    const normalizedCurrency = currency || existingInvoice.currency || "USD";
+    if (!isSupportedCurrency(normalizedCurrency)) {
+      res.status(400).json({ success: false, message: "Unsupported currency" });
+      return;
+    }
+
     // If invoice number changed, check for duplicates
     if (invoiceNumber && invoiceNumber !== existingInvoice.invoiceNumber) {
       const duplicate = await prisma.invoice.findFirst({
@@ -240,7 +257,7 @@ export const updateInvoice = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    let lineItems;
+    let lineItems: CalculatedInvoiceItem[] | undefined;
     let totals = {
       subtotal: existingInvoice.subtotal,
       taxRate: existingInvoice.taxRate,
@@ -279,7 +296,7 @@ export const updateInvoice = async (req: Request, res: Response): Promise<void> 
           dueDate: nextDueDate,
           ...totals,
           notes: notes !== undefined ? notes : existingInvoice.notes,
-          currency: currency || existingInvoice.currency,
+          currency: normalizedCurrency,
           ...(lineItems ? { items: { create: lineItems } } : {}),
         },
         include: {

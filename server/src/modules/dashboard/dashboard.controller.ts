@@ -11,6 +11,12 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
       return;
     }
 
+    // Get the user's business profile for the default currency
+    const profile = await prisma.businessProfile.findUnique({
+      where: { userId },
+    });
+    const currency = profile?.currency || "USD";
+
     // Get all invoices for the user
     const invoices = await prisma.invoice.findMany({
       where: { userId },
@@ -62,6 +68,7 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
         pendingAmount,
         overdueAmount,
         clientsCount,
+        currency,
       },
       recentInvoices,
     });
